@@ -19,13 +19,16 @@ import { eventDefaultValues } from "@/constants/data";
 import DropDown from "./Dropdown";
 import FileUploader from "./FileUploader";
 import { useState } from "react";
-import { MapPinCheckInside } from "lucide-react";
+import "react-datepicker/dist/react-datepicker.css";
+import DatePicker from "react-datepicker";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type EventFormProps = {
   userId: string;
   type: "Create" | "Update";
 };
 export default function EventForm({ userId, type }: EventFormProps) {
+  const [startDate, setStartDate] = useState(new Date());
   const [files, setFiles] = useState<File[]>([]);
   const initialValues = eventDefaultValues;
   const form = useForm<z.infer<typeof EventFormSchema>>({
@@ -45,6 +48,24 @@ export default function EventForm({ userId, type }: EventFormProps) {
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-5">
+          <FormField
+            control={form.control}
+            name="imageUrl"
+            render={({ field }) => (
+              <FormItem className=" w-full">
+                <FormLabel>Upload Cover Image</FormLabel>
+                <FormControl>
+                  <FileUploader
+                    onFieldChange={field.onChange}
+                    imageUrl={field.value}
+                    setFiles={setFiles}
+                  />
+                </FormControl>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <div className=" flex-flex-col gap-5 md:flex-row">
             <FormField
               control={form.control}
@@ -90,7 +111,7 @@ export default function EventForm({ userId, type }: EventFormProps) {
                 <FormItem className=" w-full">
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Add your description." />
+                    <Textarea placeholder="Add your description." {...field} />
                   </FormControl>
 
                   <FormMessage />
@@ -99,24 +120,6 @@ export default function EventForm({ userId, type }: EventFormProps) {
             />
           </div>
 
-          <FormField
-            control={form.control}
-            name="imageUrl"
-            render={({ field }) => (
-              <FormItem className=" w-full">
-                <FormLabel>Upload Cover Image</FormLabel>
-                <FormControl>
-                  <FileUploader
-                    onFieldChange={field.onChange}
-                    imageUrl={field.value}
-                    setFiles={setFiles}
-                  />
-                </FormControl>
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <div className="flex flex-col gap-5 md:flex-row">
             <FormField
               control={form.control}
@@ -137,21 +140,115 @@ export default function EventForm({ userId, type }: EventFormProps) {
               )}
             />
           </div>
-          <div className="flex flex-col gap-5 md:flex-row">
+          <div className="flex flex-col gap-5 md:flex-row ">
             <FormField
               control={form.control}
               name="startDateTime"
               render={({ field }) => (
                 <FormItem className=" w-full">
                   <FormLabel>Start Date</FormLabel>
-                  <FormControl></FormControl>
+                  <FormControl className=" bg-white">
+                    <div className=" py-2 rounded-md">
+                      <DatePicker
+                        selected={field.value}
+                        onChange={(date) => field.onChange(date)}
+                        showTimeSelect
+                        timeInputLabel="Time"
+                        dateFormat="MM/dd/yyyy h:mm aa"
+                        wrapperClassName="datePicker"
+                      />
+                    </div>
+                  </FormControl>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="endDateTime"
+              render={({ field }) => (
+                <FormItem className=" w-full">
+                  <FormLabel>End Date</FormLabel>
+                  <FormControl className=" bg-white">
+                    <div className=" py-2 rounded-md">
+                      <DatePicker
+                        selected={field.value}
+                        onChange={(date) => field.onChange(date)}
+                        showTimeSelect
+                        timeInputLabel="Time"
+                        dateFormat="MM/dd/yyyy h:mm aa"
+                        wrapperClassName="datePicker"
+                      />
+                    </div>
+                  </FormControl>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="isFree"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Free</FormLabel>
+                  <FormControl className=" bg-white">
+                    <Checkbox
+                      id="isFree"
+                      onCheckedChange={field.onChange}
+                      checked={field.value}
+                    />
+                  </FormControl>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <FormItem className=" w-full">
+                  <FormLabel>Price</FormLabel>
+                  <FormControl className=" bg-white">
+                    <Input
+                      type="number"
+                      placeholder="Enter Price (LKR)"
+                      {...field}
+                      className=" p-regular-14"
+                    />
+                  </FormControl>
 
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
-          <Button type="submit">Submit</Button>
+          <FormField
+            control={form.control}
+            name="url"
+            render={({ field }) => (
+              <FormItem className=" w-full">
+                <FormLabel>Any other URL</FormLabel>
+                <FormControl>
+                  <Input placeholder="URL" {...field} className=" " />
+                </FormControl>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className=" py-3 w-full">
+            <Button
+              type="submit"
+              className=""
+              disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting
+                ? "Submitting...  "
+                : `${type} Event`}
+            </Button>
+          </div>
         </form>
       </Form>
     </>
